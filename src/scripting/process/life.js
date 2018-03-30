@@ -179,7 +179,7 @@ export function SUICIDE() {
 }
 
 export function USE_ONE_LITTLE_KEY() {
-    this.scene.hero.props.keys++;
+    this.scene.hero.props.keys += 1;
 }
 
 export function GIVE_GOLD_PIECES(amount) {
@@ -362,7 +362,7 @@ export function ECLAIR() {
 
 export function INC_CLOVER_BOX() {
     if (this.scene.hero.props.clover.boxes < 10) {
-        this.scene.hero.props.clover.boxes++;
+        this.scene.hero.props.clover.boxes += 1;
     }
 }
 

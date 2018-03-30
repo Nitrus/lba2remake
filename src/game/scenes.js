@@ -16,7 +16,6 @@ import {loadActor} from './actors';
 import {loadPoint} from './points';
 import {loadZone} from './zones';
 import {loadScripts, killActor, reviveActor} from '../scripting';
-import {compileScripts} from '../scripting/compiler'
 import {initCameraMovement} from './loop/cameras';
 import DebugData, * as DBG from '../ui/editor/DebugData';
 
@@ -128,7 +127,7 @@ function setHeroPointer(scene) {
         scene.hero = Object.assign({}, scene.actorsNoHero[0]);
     } else {
         const heroTemplate = scene.actorsNoHero[0];
-        //scene.hero.props.pos = heroTemplate.props.pos.slice();
+        // scene.hero.props.pos = heroTemplate.props.pos.slice();
         scene.hero.props.lifeScriptSize = heroTemplate.props.lifeScriptSize;
         scene.hero.props.moveScriptSize = heroTemplate.props.moveScriptSize;
         if (heroTemplate.props.lifeScript) {
@@ -145,8 +144,8 @@ function setHeroPointer(scene) {
     scene.actors[0] = scene.hero;
 }
 
-function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent, callback) {
-    loadSceneData(index, sceneData => {
+function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent) {
+    loadSceneData(index, (sceneData) => {
         const indexInfo = sceneMap[index];
         let islandName;
         if (indexInfo.isIsland) {
@@ -238,7 +237,7 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
             if (scene.isIsland) {
                 scene.section = islandSceneMapping[index].section;
             }
-            setHeroPointer(scene) ;
+            setHeroPointer(scene);
             loadScripts(params, game, scene);
             scene.variables = createSceneVariables(scene);
             scene.usedVarGames = findUsedVarGames(scene);
