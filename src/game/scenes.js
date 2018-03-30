@@ -144,8 +144,8 @@ function setHeroPointer(scene) {
     scene.actors[0] = scene.hero;
 }
 
-function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent) {
-    loadSceneData(index, (sceneData) => {
+function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent, mainCallback) {
+    loadSceneData(game.getState().config.language, index, (sceneData) => {
         const indexInfo = sceneMap[index];
         let islandName;
         if (indexInfo.isIsland) {
