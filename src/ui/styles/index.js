@@ -6,11 +6,23 @@ export const fullscreen = {
     bottom: 0
 };
 
+export const center = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)'
+};
+
+export const bigButton = {
+    padding: '5px 15px',
+    fontSize: '1.1em'
+};
+
 export const editor = {
     base: {
         background: 'rgb(45,45,48)',
         color: 'white',
-        fontFamily: `'Courier', monospace`,
+        fontFamily: '\'Courier\', monospace',
         fontSize: 14,
         fontWeight: 'bold'
     },

@@ -1,4 +1,4 @@
-import DebugData, {getObjectName, renameObject} from '../../../DebugData';
+import DebugData, {getObjectName, renameObject, locateObject} from '../../../DebugData';
 import {SceneGraphNode} from './sceneGraph';
 
 const Point = {
@@ -8,13 +8,20 @@ const Point = {
     rename: (point, newName) => {
         renameObject('point', point.props.sceneIndex, point.index, newName);
     },
-    name: (point) => getObjectName('point', point.props.sceneIndex, point.index),
+    ctxMenu: [
+        {
+            name: 'Locate',
+            onClick: (component, point) => locateObject(point)
+        }
+    ],
+    name: point => getObjectName('point', point.props.sceneIndex, point.index),
     icon: () => 'editor/icons/point2.png',
-    numChildren: (point) => point.threeObject ? 1 : 0,
+    numChildren: point => (point.threeObject ? 1 : 0),
     child: () => SceneGraphNode,
-    childData: (point) => point.threeObject,
-    selected: (point) => DebugData.selection.point === point.index,
-    onClick: (point) => {DebugData.selection.point = point.index},
+    childData: point => point.threeObject,
+    selected: point => DebugData.selection.point === point.index,
+    onClick: (point) => { DebugData.selection.point = point.index; },
+    onDoubleClick: locateObject
 };
 
 export const PointsNode = {
@@ -22,10 +29,10 @@ export const PointsNode = {
     needsData: true,
     name: () => 'Points',
     icon: () => 'editor/icons/point.png',
-    numChildren: (scene) => scene.points.length,
+    numChildren: scene => scene.points.length,
     child: () => Point,
     childData: (scene, idx) => scene.points[idx],
-    hasChanged: (scene) => scene.index !== DebugData.scope.scene.index,
+    hasChanged: scene => scene.index !== DebugData.scope.scene.index,
     onClick: (scene, setRoot) => {
         if (scene.isActive) {
             setRoot();

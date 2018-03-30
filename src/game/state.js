@@ -1,11 +1,12 @@
 // @flow
 
+import TextData from '../text/data';
+
 export function createState() {
     return {
         config: {
-            text: 0,
-            language: 0,
-            languageCode: 'EN',
+            language: TextData.LANGUAGE[0],
+            languageVoice: TextData.LANGUAGE[0],
             displayText: true,
             musicVolume: 0.8,
             soundFxVolume: 0.5,
@@ -23,7 +24,7 @@ export function createState() {
 
 function createQuestFlags() {
     const quest = [];
-    for (let i = 0; i < 256; ++i) {
+    for (let i = 0; i < 256; i += 1) {
         quest[i] = 0;
     }
 
@@ -43,20 +44,20 @@ function createQuestFlags() {
 
 function createHolomapFlags() {
     const holomap = [];
-    for (let i = 0; i < 512; ++i) {
+    for (let i = 0; i < 512; i += 1) {
         holomap[i] = 0;
     }
     return holomap;
 }
 
 export function setMagicBallLevel(index: number) {
-    let magicball = { level: 0, strength: 0, bounce: 0 }
+    const magicball = { level: 0, strength: 0, bounce: 0 };
 
     magicball.level = index;
     magicball.strength = 4;
     magicball.bounce = ((index - 1) / 20) + 1;
 
-    switch(index) {
+    switch (index) {
         default:
         case 0:
         case 1:

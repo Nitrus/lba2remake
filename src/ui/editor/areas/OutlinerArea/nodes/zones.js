@@ -1,5 +1,5 @@
 import React from 'react';
-import DebugData, {getObjectName, renameObject} from '../../../DebugData';
+import DebugData, {getObjectName, renameObject, locateObject} from '../../../DebugData';
 import {SceneGraphNode} from './sceneGraph';
 
 const ZONE_TYPE = [
@@ -22,9 +22,15 @@ const Zone = {
     rename: (zone, newName) => {
         renameObject('zone', zone.props.sceneIndex, zone.index, newName);
     },
-    name: (zone) => getObjectName('zone', zone.props.sceneIndex, zone.index),
+    ctxMenu: [
+        {
+            name: 'Locate',
+            onClick: (component, zone) => locateObject(zone)
+        }
+    ],
+    name: zone => getObjectName('zone', zone.props.sceneIndex, zone.index),
     icon: () => 'editor/icons/zone2.png',
-    props: (zone) => [
+    props: zone => [
         {
             id: 'type',
             value: ZONE_TYPE[zone.props.type],
@@ -44,11 +50,12 @@ const Zone = {
             }
         },
     ],
-    numChildren: (zone) => zone.threeObject ? 1 : 0,
+    numChildren: zone => (zone.threeObject ? 1 : 0),
     child: () => SceneGraphNode,
-    childData: (zone) => zone.threeObject,
-    selected: (zone) => DebugData.selection.zone === zone.index,
-    onClick: (zone) => {DebugData.selection.zone = zone.index},
+    childData: zone => zone.threeObject,
+    selected: zone => DebugData.selection.zone === zone.index,
+    onClick: (zone) => { DebugData.selection.zone = zone.index; },
+    onDoubleClick: locateObject
 };
 
 export const ZonesNode = {
@@ -56,10 +63,10 @@ export const ZonesNode = {
     needsData: true,
     name: () => 'Zones',
     icon: () => 'editor/icons/zone.png',
-    numChildren: (scene) => scene.zones.length,
+    numChildren: scene => scene.zones.length,
     child: () => Zone,
     childData: (scene, idx) => scene.zones[idx],
-    hasChanged: (scene) => scene.index !== DebugData.scope.scene.index,
+    hasChanged: scene => scene.index !== DebugData.scope.scene.index,
     onClick: (scene, setRoot) => {
         if (scene.isActive) {
             setRoot();

@@ -4,8 +4,10 @@ import ReactDOM from 'react-dom';
 import Ticker from './ui/utils/Ticker';
 import Game from './ui/Game';
 import Editor from './ui/Editor';
+import Popup from './ui/Popup';
 import {loadParams} from './params';
 import {loadGameMetaData} from './ui/editor/DebugData';
+import {CrashHandler} from './crash_reporting';
 
 class Root extends React.Component {
     constructor(props) {
@@ -31,16 +33,33 @@ class Root extends React.Component {
     }
 
     render() {
+        let content;
         if (this.state.params.editor) {
-            return <Editor params={this.state.params} ticker={this.props.ticker} />;
+            content = <Editor params={this.state.params} ticker={this.props.ticker} />;
         } else {
-            return <Game params={this.state.params} ticker={this.props.ticker} />;
+            content = <Game params={this.state.params} ticker={this.props.ticker} />;
         }
+        return <div>
+            {content}
+            <Popup/>
+        </div>;
     }
 }
 
-window.onload = function() {
-    const ticker = new Ticker();
-    ReactDOM.render(<Root ticker={ticker}/>, document.getElementById('root'));
-    ticker.run();
+window.onload = () => {
+    init();
 };
+
+window.onerror = (message, file, line, column, data) => {
+    const stack = (data && data.stack) || undefined;
+    init({message, file, line, column, stack, data});
+};
+
+function init(error) {
+    const ticker = new Ticker();
+    const Renderer = () => (error
+        ? <CrashHandler error={error}/>
+        : <Root ticker={ticker}/>);
+    ReactDOM.render(<Renderer/>, document.getElementById('root'));
+    ticker.run();
+}

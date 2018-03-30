@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOMServer from 'react-dom/server';
 import {extend, map, filter, isObject} from 'lodash';
 import {fullscreen} from '../../../styles';
 import FrameListener from '../../../utils/FrameListener';
@@ -13,15 +13,15 @@ const scriptBaseStyle = {
     top: 0,
     bottom: 0,
     overflow: 'auto',
-    //boxShadow: 'inset 0px 0px 0px 1px rgb(0,122,204)',
+    // boxShadow: 'inset 0px 0px 0px 1px rgb(0,122,204)',
     background: 'rgb(25,25,25)',
     fontWeight: 'normal',
     fontSize: 16
 };
 
 const scriptStyle = {
-    life: (splitAt) => extend({left: 0, width: `${splitAt}%`}, scriptBaseStyle),
-    move: (splitAt) => extend({left: `${splitAt}%`, right: 0}, scriptBaseStyle)
+    life: splitAt => extend({left: 0, width: `${splitAt}%`}, scriptBaseStyle),
+    move: splitAt => extend({left: `${splitAt}%`, right: 0}, scriptBaseStyle)
 };
 
 let selection = null;
@@ -65,6 +65,9 @@ export default class ScriptEditor extends FrameListener {
     }
 
     enableSeparator(e) {
+        if (!e || !e.path) {
+            return;
+        }
         if (e.path.indexOf(this.separatorRef) !== -1) {
             const bb = this.rootRef.getBoundingClientRect();
             const separator = {
@@ -142,7 +145,7 @@ export default class ScriptEditor extends FrameListener {
             const commands = this.state.listing[type].commands;
             const activeCommands = DebugData.script[type][this.actor.index] || {};
             const breakpoints = DebugData.breakpoints[type][this.actor.index] || {};
-            for (let i = 0; i < ln.length; ++i) {
+            for (let i = 0; i < ln.length; i += 1) {
                 const lineNum = ln[i];
                 const lineCmd = lc[i];
                 const result = lineCmd.querySelector('.result');
@@ -198,9 +201,10 @@ export default class ScriptEditor extends FrameListener {
                 if (result) {
                     result.style.display = active ? 'inline-block' : 'none';
                     if (active && 'condValue' in activeCommands[i]) {
-                        let condValue = activeCommands[i].condValue;
+                        const condValue = activeCommands[i].condValue;
                         if (isObject(condValue)) {
-                            ReactDOM.render(<span>: {condValue}</span>, result);
+                            const elem = <span>: {condValue}</span>;
+                            result.innerHTML = ReactDOMServer.renderToStaticMarkup(elem, result);
                         } else {
                             result.innerText = `: ${condValue}`;
                         }
@@ -229,7 +233,9 @@ export default class ScriptEditor extends FrameListener {
     }
 
     render() {
-        const splitAt = this.props.sharedState.splitAt || this.state.splitAt || defaultSplitDistance;
+        const splitAt = this.props.sharedState.splitAt
+            || this.state.splitAt
+            || defaultSplitDistance;
 
         const separator = {
             position: 'absolute',
@@ -270,11 +276,13 @@ export default class ScriptEditor extends FrameListener {
             nDigits = listing.commands.length.toString().length;
             lineNumbers = map(
                 listing.commands,
-                (cmd, line) => <LineNumber key={line}
-                                           toggleBreakpoint={this.toggleBreakpoint.bind(this, type, line)}
-                                           nDigits={nDigits}
-                                           line={line}
-                                           command={cmd}/>
+                (cmd, line) => <LineNumber
+                    key={line}
+                    toggleBreakpoint={this.toggleBreakpoint.bind(this, type, line)}
+                    nDigits={nDigits}
+                    line={line}
+                    command={cmd}
+                />
             );
             commands = map(
                 listing.commands,
@@ -282,7 +290,7 @@ export default class ScriptEditor extends FrameListener {
             );
         }
         const lineNumberStyle = {
-            position: 'sticky',
+            position: 'absolute',
             left: 0,
             width: `${nDigits}ch`,
             top: 0,
@@ -294,13 +302,18 @@ export default class ScriptEditor extends FrameListener {
         };
         const commandsStyle = {
             position: 'absolute',
+            overflowY: 'hidden',
             left: `${nDigits}ch`,
             right: 0,
             top: 0
         };
         return <div style={scriptStyle[type](splitAt)}>
-            <div ref={ref => this.lineCmds[type] = ref} style={commandsStyle}>{commands}</div>
-            <div ref={ref => this.lineNumbers[type] = ref} style={lineNumberStyle}>{lineNumbers}</div>
+            <div ref={ref => this.lineCmds[type] = ref} style={commandsStyle}>
+                {commands}
+            </div>
+            <div ref={ref => this.lineNumbers[type] = ref} style={lineNumberStyle}>
+                {lineNumbers}
+            </div>
         </div>;
     }
 }
@@ -401,9 +414,8 @@ function Condition({condition}) {
             {param}
             <span className="result" style={rStyle}/>
         </span>;
-    } else {
-        return null;
     }
+    return null;
 }
 
 /**
@@ -416,9 +428,8 @@ function Operator({operator}) {
             &nbsp;{operator.name}
             &nbsp;<span style={argStyle}>{operator.operand}{text}</span>
         </span>;
-    } else {
-        return null;
     }
+    return null;
 }
 
 /**
@@ -437,9 +448,8 @@ function Args({args}) {
                 )
             }
         </span>;
-    } else {
-        return null;
     }
+    return null;
 }
 
 const lineBaseStyle = {

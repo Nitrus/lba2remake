@@ -1,1 +1,12 @@
-{}
+{
+  "actorNames": [
+    null,
+    null,
+    "WeatherWizard",
+    "Gate",
+    "DancerWooh",
+    "DancerAnimation",
+    "Spoon",
+    "Bed"
+  ]
+}
